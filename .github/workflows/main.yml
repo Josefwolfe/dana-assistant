@@ -33,34 +33,18 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Locate Project and Build Debug APK
+      - name: Build Debug APK
         run: |
-          SETTINGS_FILE=$(find . -name "settings.gradle.kts" -o -name "settings.gradle" | head -n 1)
-          if [ -z "$SETTINGS_FILE" ]; then
-            echo "ERROR: settings.gradle(.kts) not found in repository!"
-            echo "Listing all gradle files for debugging:"
-            find . -type f -name "*.gradle*" | head -20
-            exit 1
-          fi
-          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
-          echo "Building Android project in: $PROJECT_DIR"
-          cd "$PROJECT_DIR"
-
-          if [ ! -f local.properties ]; then
-            echo "sdk.dir=$ANDROID_HOME" > local.properties
-          fi
-
-          if [ -f ./gradlew ]; then
-            chmod +x ./gradlew
-            ./gradlew assembleDebug --no-daemon --stacktrace
-          else
-            gradle assembleDebug --no-daemon --stacktrace
-          fi
+          # تنظیم مسیر SDK برای پروژه
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          
+          # اجرای بیلد با استفاده از Gradle Wrapper
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload Dana APK
         uses: actions/upload-artifact@v4
         with:
           name: Dana-AI-Assistant-APK
-          path: |
-            **/build/outputs/apk/debug/*.apk
+          path: "app/build/outputs/apk/debug/*.apk"
           if-no-files-found: error
