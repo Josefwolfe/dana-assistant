@@ -19,8 +19,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # رفع خطای "Failed to find package 'tools'" با استفاده از v4
-      # و تعیین صریح بسته‌ها (بدون tools که حذف شده است)
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
@@ -37,21 +35,21 @@ jobs:
 
       - name: Locate Project and Build Debug APK
         run: |
-          SETTINGS_FILE=$(find . -maxdepth 3 \( -name "settings.gradle.kts" -o -name "settings.gradle" \) | head -n 1)
+          SETTINGS_FILE=$(find . -name "settings.gradle.kts" -o -name "settings.gradle" | head -n 1)
           if [ -z "$SETTINGS_FILE" ]; then
-            echo "ERROR: settings.gradle(.kts) not found!"
+            echo "ERROR: settings.gradle(.kts) not found in repository!"
+            echo "Listing all gradle files for debugging:"
+            find . -type f -name "*.gradle*" | head -20
             exit 1
           fi
           PROJECT_DIR=$(dirname "$SETTINGS_FILE")
           echo "Building Android project in: $PROJECT_DIR"
           cd "$PROJECT_DIR"
 
-          # اگر local.properties وجود ندارد و به sdk.dir نیاز دارید
           if [ ! -f local.properties ]; then
             echo "sdk.dir=$ANDROID_HOME" > local.properties
           fi
 
-          # استفاده از wrapper پروژه اگر موجود باشد (سازگارتر با نسخه‌های پروژه)
           if [ -f ./gradlew ]; then
             chmod +x ./gradlew
             ./gradlew assembleDebug --no-daemon --stacktrace
