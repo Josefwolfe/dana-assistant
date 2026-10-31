@@ -32,15 +32,13 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.5'
 
       - name: Build Debug APK
         run: |
-          # تنظیم مسیر SDK برای پروژه
           echo "sdk.dir=$ANDROID_HOME" > local.properties
-          
-          # اجرای بیلد با استفاده از Gradle Wrapper
-          chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload Dana APK
         uses: actions/upload-artifact@v4
